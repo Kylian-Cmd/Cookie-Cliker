@@ -369,7 +369,7 @@
         }
 
         /* Grilles pour générateurs et upgrades */
-        .items-grid {
+                .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
@@ -385,7 +385,6 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
-            transform: translateZ(0);
         }
 
         .item-card:hover {
@@ -410,6 +409,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 18px;
+            pointer-events: none;
         }
 
         .item-emoji {
@@ -437,6 +437,7 @@
             color: #ffd700;
             margin-bottom: 12px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
         }
 
         .item-desc {
@@ -444,6 +445,7 @@
             color: #ccc;
             margin-bottom: 18px;
             line-height: 1.5;
+            pointer-events: none;
         }
 
         .item-stats {
@@ -452,6 +454,7 @@
             font-size: 15px;
             padding-top: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
         }
 
         .item-cost {
@@ -470,6 +473,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 13px;
             color: #999;
+            pointer-events: none;
         }
 
         .info-row {
@@ -477,6 +481,7 @@
             justify-content: space-between;
             margin: 5px 0;
         }
+
 
         /* Achievements */
         .achievement-card {
