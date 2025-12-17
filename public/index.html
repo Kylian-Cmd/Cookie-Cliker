@@ -1613,14 +1613,14 @@
         document.getElementById('prestigeBtn').addEventListener('click', prestige);
 
         function checkAchievements() {
-            game.achievements.forEach(ach => {
-                if (!ach.unlocked && ach.condition()) {
-                    ach.unlocked = true;
-                    showNotification('🏆 Succès débloqué : ' + ach.name);
-                    updateDisplay();
-                }
-            });
-        }
+              game.achievements.forEach(ach => {
+               if (!ach.unlocked && typeof ach.condition === 'function' && ach.condition()) {
+               ach.unlocked = true;
+               showNotification('🏆 Succès débloqué : ' + ach.name);
+               updateDisplay();
+             }
+              });
+               }
 
         function showNotification(text) {
             const notif = document.createElement('div');
