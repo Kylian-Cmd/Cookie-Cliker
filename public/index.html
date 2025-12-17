@@ -384,7 +384,11 @@
     border-radius: 20px;
     border: 2px solid rgba(255, 215, 0, 0.3);
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition:
+    transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s ease,
+    border-color 0.3s ease;
+
     position: relative;
     overflow: hidden;
     transform: translateZ(0); /* <-- force GPU rendering */
@@ -394,6 +398,7 @@
     transform: scale(1.03);
     border-color: #ffd700;
     box-shadow: 0 15px 40px rgba(255, 215, 0, 0.5);
+    backdrop-filter: none; /* ← empêche l’animation “clic fantôme” */
 }
 
 
