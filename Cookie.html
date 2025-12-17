@@ -1,0 +1,1839 @@
+<<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍪 Cookie Clicker Ultimate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Particules d'arrière-plan */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            animation: float 6s infinite ease-in-out;
+            opacity: 0.3;
+            font-size: 30px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-50px) rotate(180deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid rgba(255, 215, 0, 0.4);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .nav-stat {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 18px;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            transition: all 0.3s;
+        }
+
+        .nav-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .nav-stat-value {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 22px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #ffd700, #ff6b6b);
+            border-color: #ffd700;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+            font-weight: bold;
+            animation: glow 2s infinite;
+        }
+
+        .nav-btn.prestige-available {
+            animation: prestigeAlert 1s infinite;
+        }
+
+        @keyframes prestigeAlert {
+            0%, 100% { 
+                background: linear-gradient(135deg, #ffd700, #ff6b6b);
+                transform: scale(1);
+            }
+            50% { 
+                background: linear-gradient(135deg, #ff6b6b, #ffd700);
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 5px 30px rgba(255, 215, 0, 0.8); }
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeInPage 0.5s ease-out;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Page d'accueil - Cookie */
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        #cookie-container {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            animation: floatCookie 4s ease-in-out infinite;
+        }
+
+        @keyframes floatCookie {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        #cercle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 25px;
+            background: conic-gradient(
+                rgb(255, 215, 0), 
+                rgb(255, 69, 0), 
+                rgb(255, 0, 255),
+                rgb(0, 191, 255),
+                rgb(50, 205, 50),
+                rgb(255, 215, 0)
+            );
+            animation: rotate 4s linear infinite;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #cercle::before {
+            content: '';
+            position: absolute;
+            inset: 25px;
+            background: rgba(20, 20, 40, 0.95);
+            border-radius: 50%;
+        }
+
+        #cookie {
+            width: 360px;
+            height: 360px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
+            font-size: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        #cookie:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 60px rgba(255, 215, 0, 1));
+        }
+
+        #cookie:active {
+            transform: scale(0.95) rotate(15deg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .stat-card-title {
+            font-size: 15px;
+            color: #bbb;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .combo-section {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .combo-meter {
+            width: 100%;
+            height: 35px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 12px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .combo-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd700, #51cf66);
+            transition: width 0.3s ease;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .combo-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Grilles pour générateurs et upgrades */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .item-card {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            border-color: #ffd700;
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.5);
+        }
+
+        .item-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        .item-card.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .item-emoji {
+            font-size: 50px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .item-count {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 107, 107, 0.4));
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+
+        .item-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .item-desc {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .item-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .item-cost {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .item-production {
+            color: #51cf66;
+            font-weight: bold;
+        }
+
+        .item-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            color: #999;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        /* Achievements */
+        .achievement-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 20px;
+            border-left: 6px solid #555;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        .achievement-card:hover {
+            transform: translateX(10px);
+        }
+
+        .achievement-card.unlocked {
+            border-left-color: #4caf50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .achievement-icon {
+            font-size: 60px;
+        }
+
+        .achievement-info {
+            flex: 1;
+        }
+
+        .achievement-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+
+        .achievement-desc {
+            font-size: 15px;
+            color: #aaa;
+        }
+
+        /* Prestige - Interface améliorée */
+        .prestige-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .prestige-info {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 50px;
+            border-radius: 25px;
+            border: 4px solid #ffd700;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 50px rgba(255, 215, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prestige-info.can-prestige {
+            animation: prestigeReady 2s ease-in-out infinite;
+            border-color: #51cf66;
+        }
+
+        @keyframes prestigeReady {
+            0%, 100% { 
+                box-shadow: 0 10px 50px rgba(81, 207, 102, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 15px 80px rgba(81, 207, 102, 0.9);
+                transform: scale(1.02);
+            }
+        }
+
+        .prestige-title {
+            font-size: 42px;
+            color: #ffd700;
+            margin-bottom: 25px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 1);
+        }
+
+        .prestige-progress {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd700, #51cf66);
+            transition: width 0.5s ease;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .prestige-gain {
+            font-size: 56px;
+            font-weight: bold;
+            color: #51cf66;
+            margin: 25px 0;
+            text-shadow: 0 0 30px rgba(81, 207, 102, 1);
+            animation: gainPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes gainPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .prestige-requirements {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .requirement-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .requirement-item.met {
+            border-left-color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+        }
+
+        .prestige-button {
+            width: 100%;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 4px solid #ffd700;
+            border-radius: 20px;
+            color: white;
+            font-size: 26px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prestige-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.7);
+        }
+
+        .prestige-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.7);
+        }
+
+        .prestige-button.ready {
+            background: linear-gradient(135deg, #51cf66, #4caf50);
+            animation: buttonReady 1.5s ease-in-out infinite;
+        }
+
+        @keyframes buttonReady {
+            0%, 100% { 
+                box-shadow: 0 0 30px rgba(81, 207, 102, 0.6);
+            }
+            50% { 
+                box-shadow: 0 0 50px rgba(81, 207, 102, 1);
+            }
+        }
+
+        .prestige-benefits {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: left;
+        }
+
+        .benefit-item {
+            padding: 20px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 5px solid #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .prestige-milestones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .milestone-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #555;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .milestone-card.unlocked {
+            border-color: #51cf66;
+            background: rgba(81, 207, 102, 0.2);
+            animation: unlockMilestone 0.8s ease-out;
+        }
+
+        @keyframes unlockMilestone {
+            0% { transform: scale(0.8) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .milestone-level {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .milestone-desc {
+            font-size: 14px;
+            color: #ccc;
+            margin-top: 10px;
+        }
+
+        /* Statistiques */
+        .stats-section {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 35px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .stats-section h3 {
+            color: #ffd700;
+            margin-bottom: 25px;
+            font-size: 26px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 16px;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Système de publicité */
+        .ad-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+        }
+
+        .ad-button {
+            background: linear-gradient(135deg, #ff6b6b, #ffd700);
+            padding: 18px 30px;
+            border-radius: 50px;
+            border: 3px solid #ffd700;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 30px rgba(255, 215, 0, 0.5);
+            transition: all 0.3s ease;
+            animation: adPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes adPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .ad-button:hover {
+            transform: scale(1.15);
+        }
+
+        .ad-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            animation: none;
+        }
+
+        .ad-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .ad-modal.active {
+            display: flex;
+        }
+
+        .ad-content {
+            background: rgba(20, 20, 40, 0.98);
+            padding: 50px;
+            border-radius: 25px;
+            border: 4px solid #ffd700;
+            text-align: center;
+            max-width: 600px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .ad-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .ad-timer {
+            font-size: 48px;
+            color: #ffd700;
+            margin: 30px 0;
+            font-weight: bold;
+        }
+
+        .forced-ad-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+        }
+
+        .forced-ad-overlay.active {
+            display: flex;
+        }
+
+        .forced-ad-content {
+            background: rgba(20, 20, 40, 0.98);
+            padding: 60px;
+            border-radius: 25px;
+            border: 5px solid #ff6b6b;
+            text-align: center;
+            max-width: 700px;
+        }
+
+        /* Notifications */
+        .click-number {
+            position: fixed;
+            font-size: 32px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1.2s ease-out forwards;
+            z-index: 10000;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+        }
+
+        @keyframes floatUp {
+            to {
+                transform: translateY(-120px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 90px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 22px 35px;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            font-size: 18px;
+            animation: slideInRight 0.5s, slideOutRight 0.5s 2.5s;
+            z-index: 10000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(500px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            to { transform: translateX(500px); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-stats { display: none; }
+            .items-grid { grid-template-columns: 1fr; }
+            #cookie-container { width: 350px; height: 350px; }
+            #cookie { width: 280px; height: 280px; font-size: 220px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particules -->
+    <div id="particles"></div>
+
+    <!-- Navigation -->
+    <div class="navbar">
+        <div class="nav-title">🍪 Cookie Clicker Ultimate</div>
+        <div class="nav-stats">
+            <div class="nav-stat">
+                Cookies: <span class="nav-stat-value" id="navCookies">0</span>
+            </div>
+            <div class="nav-stat">
+                /sec: <span class="nav-stat-value" id="navCPS">0</span>
+            </div>
+            <div class="nav-stat">
+                Prestige: <span class="nav-stat-value" id="navPrestige">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-btn active" data-page="home">🏠 Accueil</button>
+        <button class="nav-btn" data-page="generators">🏭 Générateurs</button>
+        <button class="nav-btn" data-page="upgrades">⭐ Améliorations</button>
+        <button class="nav-btn" data-page="achievements">🏆 Succès</button>
+        <button class="nav-btn" data-page="prestige" id="prestigeNavBtn">🌟 Prestige</button>
+        <button class="nav-btn" data-page="stats">📊 Statistiques</button>
+    </div>
+
+    <!-- Bouton Pub Récompensée -->
+    <div class="ad-container">
+        <button class="ad-button" id="watchAdBtn">
+            📺 Pub gratuite<br>
+            <small style="font-size: 14px;" id="adButtonText">Boosts disponibles !</small>
+        </button>
+    </div>
+
+    <!-- Modal Pub Récompensée -->
+    <div class="ad-modal" id="adModal">
+        <button class="ad-close" id="closeAd">✕ Fermer</button>
+        <div class="ad-content">
+            <h2 style="color: #ffd700; font-size: 32px; margin-bottom: 20px;">📺 Choisissez votre récompense</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="prestige-button" style="padding: 20px;" data-reward="double">
+                    ⚡ Production x2 pendant 5 minutes
+                </button>
+                <button class="prestige-button" style="padding: 20px;" data-reward="cookies">
+                    🍪 +<span id="cookieReward">0</span> Cookies instantanés
+                </button>
+                <button class="prestige-button" style="padding: 20px;" data-reward="click">
+                    👆 Puissance de clic x5 pendant 3 minutes
+                </button>
+            </div>
+            <p style="margin-top: 20px; color: #888; font-size: 14px;">
+                Prochaine pub dans: <span id="adCooldownDisplay">0</span>s
+            </p>
+        </div>
+    </div>
+
+    <!-- Overlay Pub Obligatoire -->
+    <div class="forced-ad-overlay" id="forcedAdOverlay">
+        <div class="forced-ad-content">
+            <h2 style="color: #ff6b6b; font-size: 36px; margin-bottom: 20px;">📺 Publicité Obligatoire</h2>
+            <p style="font-size: 18px; margin-bottom: 30px; color: #ccc;">
+                Regardez cette pub pour continuer à jouer gratuitement !
+            </p>
+            <div class="ad-timer" id="forcedAdTimer">15</div>
+            <p style="font-size: 14px; color: #888;">
+                La pub se fermera automatiquement...
+            </p>
+        </div>
+    </div>
+
+    <!-- Pages -->
+    <div class="page active" id="home">
+        <div class="home-container">
+            <div id="cookie-container">
+                <div id="cercle">
+                    <div id="cookie">🍪</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-title">Cookies Totaux</div>
+                    <div class="stat-card-value" id="homeTotalCookies">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-title">Par Clic</div>
+                    <div class="stat-card-value" id="homePerClick">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-title">Par Seconde</div>
+                    <div class="stat-card-value" id="homePerSecond">0</div>
+                </div>
+            </div>
+
+            <div class="combo-section">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-size: 22px; font-weight: bold;">🔥 Combo</span>
+                    <span style="font-size: 28px; font-weight: bold; color: #ffd700;" id="homeComboCount">0x</span>
+                </div>
+                <div class="combo-meter">
+                    <div class="combo-fill" id="comboFill"></div>
+                    <div class="combo-text" id="comboText">0x</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Générateurs -->
+    <div class="page" id="generators">
+        <h2 style="color: #ffd700; font-size: 36px; margin-bottom: 35px; text-align: center;">🏭 Générateurs de Cookies</h2>
+        <div class="items-grid" id="generatorsList"></div>
+    </div>
+
+    <!-- Page Upgrades -->
+    <div class="page" id="upgrades">
+        <h2 style="color: #ffd700; font-size: 36px; margin-bottom: 35px; text-align: center;">⭐ Améliorations</h2>
+        <div class="items-grid" id="upgradesList"></div>
+    </div>
+
+    <!-- Page Achievements -->
+    <div class="page" id="achievements">
+        <h2 style="color: #ffd700; font-size: 36px; margin-bottom: 35px; text-align: center;">🏆 Succès</h2>
+        <div style="display: flex; flex-direction: column; gap: 20px;" id="achievementsList"></div>
+    </div>
+
+    <!-- Page Prestige -->
+    <div class="page" id="prestige">
+        <div class="prestige-container">
+            <div class="prestige-info" id="prestigeInfo">
+                <div class="prestige-title">🌟 PRESTIGE 🌟</div>
+                
+                <div class="prestige-progress">
+                    <p style="font-size: 18px; margin-bottom: 15px;">Progression vers le prochain Prestige:</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="prestigeProgressBar"></div>
+                        <div class="progress-text" id="prestigeProgressText">0%</div>
+                    </div>
+                    <p style="font-size: 14px; color: #aaa; margin-top: 10px;">
+                        <span id="currentCookiesForPrestige">0</span> / <span id="neededCookiesForPrestige">1M</span> cookies
+                    </p>
+                </div>
+
+                <div style="margin: 25px 0;">
+                    <div style="font-size: 18px; margin-bottom: 10px;">Niveau de Prestige Actuel: 
+                        <span style="color: #ffd700; font-size: 28px; font-weight: bold;" id="currentPrestige">0</span>
+                    </div>
+                    <div class="prestige-gain">+<span id="prestigeGainAmount">0</span></div>
+                    <div style="font-size: 16px; color: #aaa; margin-bottom: 15px;">Points de Prestige à gagner</div>
+                </div>
+
+                <div class="prestige-requirements">
+                    <h4 style="color: #ffd700; margin-bottom: 15px; font-size: 20px;">Conditions:</h4>
+                    <div class="requirement-item" id="req1">
+                        <span>Total de 1 000 000 cookies produits</span>
+                        <span id="req1Status">❌</span>
+                    </div>
+                    <div class="requirement-item" id="req2">
+                        <span>Générer au moins 1 point de Prestige</span>
+                        <span id="req2Status">❌</span>
+                    </div>
+                </div>
+
+                <button class="prestige-button" id="prestigeBtn">
+                    <span style="position: relative; z-index: 1;">🌟 EFFECTUER LE PRESTIGE 🌟</span>
+                </button>
+
+                <p style="margin-top: 20px; font-size: 14px; color: #ff6b6b;">
+                    ⚠️ Attention: Le prestige réinitialise vos cookies, générateurs et améliorations !
+                </p>
+            </div>
+
+            <div class="prestige-benefits">
+                <h3 style="color: #ffd700; margin-bottom: 25px; font-size: 24px;">Bonus de Prestige Permanents:</h3>
+                <div class="benefit-item">
+                    ⚡ <strong>+10% de puissance de clic</strong> par niveau de prestige<br>
+                    <small style="color: #888;">Actuellement: +<span id="clickBonus">0</span>%</small>
+                </div>
+                <div class="benefit-item">
+                    🏭 <strong>+20% de production passive</strong> par niveau de prestige<br>
+                    <small style="color: #888;">Actuellement: +<span id="cpsBonus">0</span>%</small>
+                </div>
+                <div class="benefit-item">
+                    💎 <strong>Débloquez des améliorations exclusives</strong> aux niveaux supérieurs
+                </div>
+                <div class="benefit-item">
+                    🎯 <strong>Progression accélérée</strong> après chaque prestige
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h3 style="color: #ffd700; margin-bottom: 25px; font-size: 24px; text-align: center;">Jalons de Prestige</h3>
+                <div class="prestige-milestones">
+                    <div class="milestone-card" id="milestone1">
+                        <div class="milestone-level">Niveau 1</div>
+                        <div class="milestone-desc">Premier Prestige<br>🎁 Débloquez le prestige</div>
+                    </div>
+                    <div class="milestone-card" id="milestone5">
+                        <div class="milestone-level">Niveau 5</div>
+                        <div class="milestone-desc">Vétéran<br>🎁 Bonus x2</div>
+                    </div>
+                    <div class="milestone-card" id="milestone10">
+                        <div class="milestone-level">Niveau 10</div>
+                        <div class="milestone-desc">Expert<br>🎁 Bonus x3</div>
+                    </div>
+                    <div class="milestone-card" id="milestone25">
+                        <div class="milestone-level">Niveau 25</div>
+                        <div class="milestone-desc">Maître<br>🎁 Bonus x5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Statistiques -->
+    <div class="page" id="stats">
+        <h2 style="color: #ffd700; font-size: 36px; margin-bottom: 35px; text-align: center;">📊 Statistiques Détaillées</h2>
+        
+        <div class="stats-section">
+            <h3>🍪 Production</h3>
+            <div class="stat-row">
+                <span class="stat-label">Cookies actuels</span>
+                <span class="stat-value" id="statCookies">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Total produit (cette partie)</span>
+                <span class="stat-value" id="statTotalCookies">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Total produit (toutes parties)</span>
+                <span class="stat-value" id="statAllTimeCookies">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Production par seconde</span>
+                <span class="stat-value" id="statCPS">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Puissance de clic</span>
+                <span class="stat-value" id="statClickPower">1</span>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3>👆 Interactions</h3>
+            <div class="stat-row">
+                <span class="stat-label">Nombre de clics</span>
+                <span class="stat-value" id="statClicks">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Combo maximum</span>
+                <span class="stat-value" id="statMaxCombo">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Clics critiques déclenchés</span>
+                <span class="stat-value" id="statCritClicks">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Clics légendaires déclenchés</span>
+                <span class="stat-value" id="statGoldenClicks">0</span>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3>🏭 Générateurs</h3>
+            <div class="stat-row">
+                <span class="stat-label">Nombre total de générateurs</span>
+                <span class="stat-value" id="statTotalGens">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Générateur le plus possédé</span>
+                <span class="stat-value" id="statMostGen">Aucun</span>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3>🌟 Progression</h3>
+            <div class="stat-row">
+                <span class="stat-label">Niveau de Prestige</span>
+                <span class="stat-value" id="statPrestigeLevel">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Total de Prestige effectués</span>
+                <span class="stat-value" id="statPrestigeCount">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Améliorations achetées</span>
+                <span class="stat-value" id="statUpgrades">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Succès débloqués</span>
+                <span class="stat-value" id="statAchievements">0</span>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3>📺 Publicités</h3>
+            <div class="stat-row">
+                <span class="stat-label">Publicités récompensées regardées</span>
+                <span class="stat-value" id="statAdsWatched">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Publicités obligatoires vues</span>
+                <span class="stat-value" id="statForcedAds">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Bonus gagnés par publicités</span>
+                <span class="stat-value" id="statAdBonuses">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // État du jeu
+        const game = {
+            cookies: 0,
+            totalCookies: 0,
+            allTimeCookies: 0,
+            clickPower: 1,
+            cps: 0,
+            combo: 0,
+            comboTimer: null,
+            prestigeLevel: 0,
+            prestigePoints: 0,
+            generators: [],
+            upgrades: [],
+            achievements: [],
+            clicks: 0,
+            maxCombo: 0,
+            cpsMultiplier: 1,
+            clickMultiplier: 1,
+            critClicks: 0,
+            goldenClicks: 0,
+            prestigeCount: 0,
+            currentPage: 'home',
+            adCooldown: 0,
+            adsWatched: 0,
+            forcedAdsWatched: 0,
+            adBonuses: 0,
+            lastForcedAdTime: Date.now(),
+            playTime: 0
+        };
+
+        // Définitions
+        const generatorTypes = [
+            { id: 'cursor', name: 'Curseur', baseCost: 15, baseProduction: 0.1, emoji: '👆', desc: 'Clique automatiquement pour vous' },
+            { id: 'grandma', name: 'Grand-mère', baseCost: 100, baseProduction: 1, emoji: '👵', desc: 'Une grand-mère qui fait des cookies avec amour' },
+            { id: 'farm', name: 'Ferme', baseCost: 1100, baseProduction: 8, emoji: '🌾', desc: 'Cultive des ingrédients frais' },
+            { id: 'mine', name: 'Mine', baseCost: 12000, baseProduction: 47, emoji: '⛏️', desc: 'Extrait du sucre pur de la terre' },
+            { id: 'factory', name: 'Usine', baseCost: 130000, baseProduction: 260, emoji: '🏭', desc: 'Production industrielle massive' },
+            { id: 'bank', name: 'Banque', baseCost: 1400000, baseProduction: 1400, emoji: '🏦', desc: 'Investit dans le marché des cookies' },
+            { id: 'temple', name: 'Temple', baseCost: 20000000, baseProduction: 7800, emoji: '🛕', desc: 'Invoque des cookies divins' },
+            { id: 'wizard', name: 'Magicien', baseCost: 330000000, baseProduction: 44000, emoji: '🧙', desc: 'Crée des cookies par magie' },
+            { id: 'spaceship', name: 'Vaisseau', baseCost: 5100000000, baseProduction: 260000, emoji: '🚀', desc: 'Récolte des cookies dans l\'espace' },
+            { id: 'portal', name: 'Portail', baseCost: 75000000000, baseProduction: 1600000, emoji: '🌀', desc: 'Importe des cookies de dimensions parallèles' }
+        ];
+
+        const upgradeTypes = [
+            { id: 'click1', name: 'Meilleurs clics', cost: 100, effect: 'clickPower', value: 1, desc: '+1 cookie par clic', emoji: '🖱️' },
+            { id: 'click2', name: 'Super clics', cost: 500, effect: 'clickPower', value: 5, desc: '+5 cookies par clic', emoji: '💪' },
+            { id: 'click3', name: 'Clics éclair', cost: 10000, effect: 'clickPower', value: 10, desc: '+10 cookies par clic', emoji: '⚡' },
+            { id: 'click4', name: 'Clics titanesques', cost: 100000, effect: 'clickPower', value: 25, desc: '+25 cookies par clic', emoji: '🦾' },
+            { id: 'click5', name: 'Clics cosmiques', cost: 1000000, effect: 'clickPower', value: 50, desc: '+50 cookies par clic', emoji: '🌌' },
+            { id: 'cps1', name: 'Production x2', cost: 1000, effect: 'cpsMultiplier', value: 2, desc: 'Double la production passive', emoji: '⏰' },
+            { id: 'cps2', name: 'Production x3', cost: 50000, effect: 'cpsMultiplier', value: 3, desc: 'Triple la production passive', emoji: '⏰' },
+            { id: 'cps3', name: 'Production x5', cost: 1000000, effect: 'cpsMultiplier', value: 5, desc: 'x5 production passive', emoji: '⏰' },
+            { id: 'combo1', name: 'Combo Master', cost: 5000, effect: 'combo', value: 1.5, desc: 'Bonus combo amélioré', emoji: '🔥' },
+            { id: 'crit1', name: 'Clics critiques', cost: 25000, effect: 'critical', value: 0.1, desc: '10% chance clic x10', emoji: '💎' },
+            { id: 'golden1', name: 'Clics dorés', cost: 100000, effect: 'golden', value: 1, desc: 'Clics dorés aléatoires x100', emoji: '✨' },
+            { id: 'auto1', name: 'Auto-clic', cost: 500000, effect: 'autoClick', value: 1, desc: '1 clic automatique par seconde', emoji: '🤖' }
+        ];
+
+        const achievementTypes = [
+            { id: 'cookies100', name: 'Premier pas', condition: () => game.allTimeCookies >= 100, desc: 'Produire 100 cookies' },
+            { id: 'cookies1000', name: 'Boulanger amateur', condition: () => game.allTimeCookies >= 1000, desc: 'Produire 1 000 cookies' },
+            { id: 'cookies10000', name: 'Maître boulanger', condition: () => game.allTimeCookies >= 10000, desc: 'Produire 10 000 cookies' },
+            { id: 'cookies100000', name: 'Roi du cookie', condition: () => game.allTimeCookies >= 100000, desc: 'Produire 100 000 cookies' },
+            { id: 'cookies1M', name: 'Millionnaire', condition: () => game.allTimeCookies >= 1000000, desc: 'Produire 1 000 000 cookies' },
+            { id: 'clicks100', name: 'Cliqueur débutant', condition: () => game.clicks >= 100, desc: 'Cliquer 100 fois' },
+            { id: 'clicks1000', name: 'Cliqueur professionnel', condition: () => game.clicks >= 1000, desc: 'Cliquer 1 000 fois' },
+            { id: 'clicks10000', name: 'Champion du clic', condition: () => game.clicks >= 10000, desc: 'Cliquer 10 000 fois' },
+            { id: 'combo10', name: 'Combo x10', condition: () => game.maxCombo >= 10, desc: 'Atteindre un combo de 10' },
+            { id: 'combo25', name: 'Combo Master', condition: () => game.maxCombo >= 25, desc: 'Atteindre un combo de 25' },
+            { id: 'gen10', name: 'Industriel', condition: () => game.generators.reduce((a, b) => a + b.count, 0) >= 10, desc: 'Posséder 10 générateurs' },
+            { id: 'gen50', name: 'Magnat', condition: () => game.generators.reduce((a, b) => a + b.count, 0) >= 50, desc: 'Posséder 50 générateurs' },
+            { id: 'prestige1', name: 'Première renaissance', condition: () => game.prestigeLevel >= 1, desc: 'Effectuer un prestige' },
+            { id: 'prestige5', name: 'Vétéran', condition: () => game.prestigeLevel >= 5, desc: 'Atteindre prestige niveau 5' },
+            { id: 'ad1', name: 'Spectateur', condition: () => game.adsWatched >= 1, desc: 'Regarder une publicité' },
+            { id: 'ad10', name: 'Fan de pub', condition: () => game.adsWatched >= 10, desc: 'Regarder 10 publicités' }
+        ];
+
+        // Initialisation
+        game.generators = generatorTypes.map(type => ({ ...type, count: 0, production: type.baseProduction }));
+        game.upgrades = upgradeTypes.map(type => ({ ...type, purchased: false }));
+        game.achievements = achievementTypes.map(type => ({ ...type, unlocked: false }));
+
+        // Créer particules
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = '🍪';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Gestion du clic sur le cookie
+        document.getElementById('cookie').addEventListener('click', (e) => {
+            let clickValue = game.clickPower * game.clickMultiplier * (1 + game.prestigeLevel * 0.1);
+            
+            game.combo++;
+            game.maxCombo = Math.max(game.maxCombo, game.combo);
+            clearTimeout(game.comboTimer);
+            game.comboTimer = setTimeout(() => { game.combo = 0; updateCombo(); }, 2000);
+            
+            if (game.combo > 5) {
+                clickValue *= Math.min(1 + (game.combo * 0.1), 5);
+            }
+            
+            if (game.upgrades.find(u => u.id === 'crit1' && u.purchased) && Math.random() < 0.1) {
+                clickValue *= 10;
+                game.critClicks++;
+                showNotification('💎 CLIC CRITIQUE ! x10');
+            }
+            
+            if (game.upgrades.find(u => u.id === 'golden1' && u.purchased) && Math.random() < 0.01) {
+                clickValue *= 100;
+                game.goldenClicks++;
+                showNotification('✨ CLIC LÉGENDAIRE ! x100');
+            }
+            
+            game.cookies += clickValue;
+            game.totalCookies += clickValue;
+            game.allTimeCookies += clickValue;
+            game.clicks++;
+            
+            const cookie = e.target;
+            const rotation = (Math.random() - 0.5) * 30;
+            cookie.style.transform = `rotate(${rotation}deg) scale(0.9)`;
+            setTimeout(() => { cookie.style.transform = `rotate(${-rotation}deg) scale(1.1)`; }, 50);
+            setTimeout(() => { cookie.style.transform = 'rotate(0deg) scale(1)'; }, 150);
+            
+            showFloatingNumber(clickValue, e.clientX, e.clientY);
+            updateDisplay();
+            updateCombo();
+            checkAchievements();
+        });
+
+        function showFloatingNumber(value, x, y) {
+            const num = document.createElement('div');
+            num.className = 'click-number';
+            num.textContent = '+' + formatNumber(value);
+            num.style.left = x + 'px';
+            num.style.top = y + 'px';
+            if (value > 10000) num.style.color = '#ffd700';
+            else if (value > 1000) num.style.color = '#ff6b6b';
+            else num.style.color = '#51cf66';
+            document.body.appendChild(num);
+            setTimeout(() => num.remove(), 1200);
+        }
+
+        function updateCombo() {
+            document.getElementById('homeComboCount').textContent = game.combo + 'x';
+            const percent = Math.min(game.combo * 4, 100);
+            document.getElementById('comboFill').style.width = percent + '%';
+            document.getElementById('comboText').textContent = game.combo + 'x';
+        }
+
+        // Production passive
+        setInterval(() => {
+            game.cps = game.generators.reduce((sum, gen) => sum + (gen.production * gen.count), 0) * game.cpsMultiplier * (1 + game.prestigeLevel * 0.2);
+            const production = game.cps / 10;
+            game.cookies += production;
+            game.totalCookies += production;
+            game.allTimeCookies += production;
+            
+            if (game.upgrades.find(u => u.id === 'auto1' && u.purchased)) {
+                const autoClick = game.clickPower * 0.1 * game.clickMultiplier;
+                game.cookies += autoClick;
+                game.totalCookies += autoClick;
+                game.allTimeCookies += autoClick;
+            }
+            
+            updateDisplay();
+            checkAchievements();
+        }, 100);
+
+        // Publicité obligatoire toutes les 15 minutes
+        setInterval(() => {
+            const elapsed = Date.now() - game.lastForcedAdTime;
+            if (elapsed >= 900000) { // 15 minutes = 900000ms
+                showForcedAd();
+            }
+        }, 60000); // Vérifier toutes les minutes
+
+        function showForcedAd() {
+            const overlay = document.getElementById('forcedAdOverlay');
+            overlay.classList.add('active');
+            let timer = 15;
+            document.getElementById('forcedAdTimer').textContent = timer;
+            
+            const interval = setInterval(() => {
+                timer--;
+                document.getElementById('forcedAdTimer').textContent = timer;
+                if (timer <= 0) {
+                    clearInterval(interval);
+                    overlay.classList.remove('active');
+                    game.forcedAdsWatched++;
+                    game.lastForcedAdTime = Date.now();
+                    showNotification('✅ Merci d\'avoir regardé la pub !');
+                }
+            }, 1000);
+        }
+
+        // Système de publicité récompensée
+        let adTimer;
+        document.getElementById('watchAdBtn').addEventListener('click', () => {
+            if (game.adCooldown > 0) {
+                showNotification('⏰ Attendez encore ' + game.adCooldown + 's');
+                return;
+            }
+            document.getElementById('adModal').classList.add('active');
+            document.getElementById('cookieReward').textContent = formatNumber(game.cookies * 1.5);
+        });
+
+        document.getElementById('closeAd').addEventListener('click', () => {
+            document.getElementById('adModal').classList.remove('active');
+        });
+
+        document.querySelectorAll('[data-reward]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const reward = e.target.getAttribute('data-reward') || e.target.closest('[data-reward]').getAttribute('data-reward');
+                applyAdReward(reward);
+                document.getElementById('adModal').classList.remove('active');
+                game.adCooldown = 120;
+                startAdCooldown();
+            });
+        });
+
+        function applyAdReward(reward) {
+            game.adsWatched++;
+            game.adBonuses++;
+            
+            if (reward === 'double') {
+                const oldMult = game.cpsMultiplier;
+                game.cpsMultiplier *= 2;
+                showNotification('⚡ Production x2 pendant 5 minutes !');
+                setTimeout(() => { game.cpsMultiplier = oldMult; }, 300000);
+            } else if (reward === 'cookies') {
+                const bonus = game.cookies * 1.5;
+                game.cookies += bonus;
+                game.totalCookies += bonus;
+                game.allTimeCookies += bonus;
+                showNotification('🍪 +' + formatNumber(bonus) + ' Cookies !');
+            } else if (reward === 'click') {
+                game.clickMultiplier = 5;
+                showNotification('👆 Puissance de clic x5 pendant 3 minutes !');
+                setTimeout(() => { game.clickMultiplier = 1; }, 180000);
+            }
+            updateDisplay();
+        }
+
+        function startAdCooldown() {
+            clearInterval(adTimer);
+            const btn = document.getElementById('watchAdBtn');
+            btn.disabled = true;
+            
+            adTimer = setInterval(() => {
+                if (game.adCooldown > 0) {
+                    game.adCooldown--;
+                    document.getElementById('adCooldownDisplay').textContent = game.adCooldown;
+                    document.getElementById('adButtonText').textContent = 'Cooldown: ' + game.adCooldown + 's';
+                } else {
+                    clearInterval(adTimer);
+                    btn.disabled = false;
+                    document.getElementById('adButtonText').textContent = 'Boosts disponibles !';
+                }
+            }, 1000);
+        }
+
+        function buyGenerator(id) {
+            const gen = game.generators.find(g => g.id === id);
+            const cost = Math.floor(gen.baseCost * Math.pow(1.15, gen.count));
+            
+            if (game.cookies >= cost) {
+                game.cookies -= cost;
+                gen.count++;
+                showNotification('✅ ' + gen.name + ' acheté !');
+                updateDisplay();
+            }
+        }
+
+        function buyUpgrade(id) {
+            const upgrade = game.upgrades.find(u => u.id === id);
+            
+            if (!upgrade.purchased && game.cookies >= upgrade.cost) {
+                game.cookies -= upgrade.cost;
+                upgrade.purchased = true;
+                
+                if (upgrade.effect === 'clickPower') game.clickPower += upgrade.value;
+                else if (upgrade.effect === 'cpsMultiplier') game.cpsMultiplier *= upgrade.value;
+                
+                showNotification('✨ ' + upgrade.name + ' acheté !');
+                updateDisplay();
+            }
+        }
+
+        function prestige() {
+            if (game.totalCookies < 1000000) {
+                showNotification('⚠️ Il faut 1M de cookies totaux pour prestige !');
+                return;
+            }
+            
+            const gain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
+            if (gain === 0) {
+                showNotification('⚠️ Vous devez générer au moins 1 point de prestige !');
+                return;
+            }
+            
+            game.prestigeLevel += gain;
+            game.prestigePoints += gain;
+            game.prestigeCount++;
+            
+            game.cookies = 0;
+            game.totalCookies = 0;
+            game.generators.forEach(g => g.count = 0);
+            game.upgrades.forEach(u => u.purchased = false);
+            game.cpsMultiplier = 1;
+            game.clickPower = 1;
+            game.clickMultiplier = 1;
+            
+            showNotification('🌟 PRESTIGE ! +' + gain + ' niveaux de prestige !');
+            updateDisplay();
+        }
+
+        document.getElementById('prestigeBtn').addEventListener('click', prestige);
+
+        function checkAchievements() {
+            game.achievements.forEach(ach => {
+                if (!ach.unlocked && ach.condition()) {
+                    ach.unlocked = true;
+                    showNotification('🏆 Succès débloqué : ' + ach.name);
+                    updateDisplay();
+                }
+            });
+        }
+
+        function showNotification(text) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = text;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Q';
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return Math.floor(num).toString();
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const page = e.target.getAttribute('data-page');
+                if (page) {
+                    game.currentPage = page;
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    document.getElementById(page).classList.add('active');
+                    
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    updateDisplay();
+                }
+            });
+        });
+
+        function updateDisplay() {
+            document.getElementById('navCookies').textContent = formatNumber(game.cookies);
+            document.getElementById('navCPS').textContent = formatNumber(game.cps);
+            document.getElementById('navPrestige').textContent = game.prestigeLevel;
+            
+            document.getElementById('homeTotalCookies').textContent = formatNumber(game.totalCookies);
+            document.getElementById('homePerClick').textContent = formatNumber(game.clickPower * game.clickMultiplier * (1 + game.prestigeLevel * 0.1));
+            document.getElementById('homePerSecond').textContent = formatNumber(game.cps);
+            
+            // Alerte prestige disponible
+            const prestigeGain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
+            const navBtn = document.getElementById('prestigeNavBtn');
+            if (prestigeGain > 0) {
+                navBtn.classList.add('prestige-available');
+            } else {
+                navBtn.classList.remove('prestige-available');
+            }
+            
+            if (game.currentPage === 'generators') {
+                const genHTML = game.generators.map(gen => {
+                    const cost = Math.floor(gen.baseCost * Math.pow(1.15, gen.count));
+                    const canBuy = game.cookies >= cost;
+                    const totalProduction = gen.production * gen.count * game.cpsMultiplier * (1 + game.prestigeLevel * 0.2);
+                    return `
+                        <div class="item-card ${!canBuy ? 'locked' : ''}" onclick="buyGenerator('${gen.id}')">
+                            <div class="item-header">
+                                <div class="item-emoji">${gen.emoji}</div>
+                                <div class="item-count">${gen.count}</div>
+                            </div>
+                            <div class="item-name">${gen.name}</div>
+                            <div class="item-desc">${gen.desc}</div>
+                            <div class="item-stats">
+                                <div class="item-cost">💰 ${formatNumber(cost)}</div>
+                                <div class="item-production">📈 +${formatNumber(gen.production)}/s</div>
+                            </div>
+                            <div class="item-info">
+                                <div class="info-row">
+                                    <span>Production totale:</span>
+                                    <span style="color: #51cf66; font-weight: bold;">${formatNumber(totalProduction)}/s</span>
+                                </div>
+                                <div class="info-row">
+                                    <span>Prochain coût:</span>
+                                    <span style="color: #ff6b6b;">${formatNumber(Math.floor(gen.baseCost * Math.pow(1.15, gen.count + 1)))}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('generatorsList').innerHTML = genHTML;
+            }
+            
+            if (game.currentPage === 'upgrades') {
+                const upgHTML = game.upgrades.map(upg => {
+                    const canBuy = !upg.purchased && game.cookies >= upg.cost;
+                    return `
+                        <div class="item-card ${upg.purchased ? 'locked' : !canBuy ? 'locked' : ''}" onclick="buyUpgrade('${upg.id}')">
+                            <div class="item-header">
+                                <div class="item-emoji">${upg.emoji}</div>
+                                <div style="color: ${upg.purchased ? '#4caf50' : '#ffd700'}; font-weight: bold; font-size: 16px;">
+                                    ${upg.purchased ? '✅ ACHETÉ' : ''}
+                                </div>
+                            </div>
+                            <div class="item-name">${upg.name}</div>
+                            <div class="item-desc">${upg.desc}</div>
+                            <div class="item-stats">
+                                <div class="item-cost">${upg.purchased ? '✨ Actif' : '💰 ' + formatNumber(upg.cost)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('upgradesList').innerHTML = upgHTML;
+            }
+            
+            if (game.currentPage === 'achievements') {
+                const achHTML = game.achievements.map(ach => `
+                    <div class="achievement-card ${ach.unlocked ? 'unlocked' : ''}">
+                        <div class="achievement-icon">${ach.unlocked ? '🏆' : '🔒'}</div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">${ach.name}</div>
+                            <div class="achievement-desc">${ach.desc}</div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('achievementsList').innerHTML = achHTML;
+            }
+            
+            if (game.currentPage === 'prestige') {
+                const prestigeGain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
+                const progress = Math.min((game.totalCookies / 1000000) * 100, 100);
+                const canPrestige = game.totalCookies >= 1000000 && prestigeGain > 0;
+                
+                document.getElementById('currentPrestige').textContent = game.prestigeLevel;
+                document.getElementById('prestigeGainAmount').textContent = prestigeGain;
+                document.getElementById('prestigeProgressBar').style.width = progress + '%';
+                document.getElementById('prestigeProgressText').textContent = progress.toFixed(1) + '%';
+                document.getElementById('currentCookiesForPrestige').textContent = formatNumber(game.totalCookies);
+                document.getElementById('neededCookiesForPrestige').textContent = '1M';
+                
+                document.getElementById('clickBonus').textContent = game.prestigeLevel * 10;
+                document.getElementById('cpsBonus').textContent = game.prestigeLevel * 20;
+                
+                const req1 = document.getElementById('req1');
+                const req2 = document.getElementById('req2');
+                
+                if (game.totalCookies >= 1000000) {
+                    req1.classList.add('met');
+                    document.getElementById('req1Status').textContent = '✅';
+                } else {
+                    req1.classList.remove('met');
+                    document.getElementById('req1Status').textContent = '❌';
+                }
+                
+                if (prestigeGain > 0) {
+                    req2.classList.add('met');
+                    document.getElementById('req2Status').textContent = '✅';
+                } else {
+                    req2.classList.remove('met');
+                    document.getElementById('req2Status').textContent = '❌';
+                }
+                
+                const prestigeInfo = document.getElementById('prestigeInfo');
+                const prestigeBtn = document.getElementById('prestigeBtn');
+                
+                if (canPrestige) {
+                    prestigeInfo.classList.add('can-prestige');
+                    prestigeBtn.classList.add('ready');
+                    prestigeBtn.disabled = false;
+                } else {
+                    prestigeInfo.classList.remove('can-prestige');
+                    prestigeBtn.classList.remove('ready');
+                    prestigeBtn.disabled = true;
+                }
+                
+                ['1', '5', '10', '25'].forEach(level => {
+                    const milestone = document.getElementById('milestone' + level);
+                    if (game.prestigeLevel >= parseInt(level)) {
+                        milestone.classList.add('unlocked');
+                    } else {
+                        milestone.classList.remove('unlocked');
+                    }
+                });
+            }
+            
+            if (game.currentPage === 'stats') {
+                document.getElementById('statCookies').textContent = formatNumber(game.cookies);
+                document.getElementById('statTotalCookies').textContent = formatNumber(game.totalCookies);
+                document.getElementById('statAllTimeCookies').textContent = formatNumber(game.allTimeCookies);
+                document.getElementById('statCPS').textContent = formatNumber(game.cps);
+                document.getElementById('statClickPower').textContent = formatNumber(game.clickPower * game.clickMultiplier * (1 + game.prestigeLevel * 0.1));
+                document.getElementById('statClicks').textContent = game.clicks;
+                document.getElementById('statMaxCombo').textContent = game.maxCombo;
+                document.getElementById('statCritClicks').textContent = game.critClicks;
+                document.getElementById('statGoldenClicks').textContent = game.goldenClicks;
+                document.getElementById('statTotalGens').textContent = game.generators.reduce((a, b) => a + b.count, 0);
+                
+                const mostGen = game.generators.reduce((max, gen) => gen.count > max.count ? gen : max, game.generators[0]);
+                document.getElementById('statMostGen').textContent = mostGen.count > 0 ? `${mostGen.name} (${mostGen.count})` : 'Aucun';
+                
+                document.getElementById('statPrestigeLevel').textContent = game.prestigeLevel;
+                document.getElementById('statPrestigeCount').textContent = game.prestigeCount;
+                document.getElementById('statUpgrades').textContent = game.upgrades.filter(u => u.purchased).length + '/' + game.upgrades.length;
+                document.getElementById('statAchievements').textContent = game.achievements.filter(a => a.unlocked).length + '/' + game.achievements.length;
+                document.getElementById('statAdsWatched').textContent = game.adsWatched;
+                document.getElementById('statForcedAds').textContent = game.forcedAdsWatched;
+                document.getElementById('statAdBonuses').textContent = game.adBonuses;
+            }
+
+            document.getElementById('adCooldownDisplay').textContent = game.adCooldown;
+        }
+
+        setInterval(() => {
+            localStorage.setItem('cookieGameUltimate', JSON.stringify(game));
+        }, 5000);
+
+        const saved = localStorage.getItem('cookieGameUltimate');
+        if (saved) {
+            try {
+                const loaded = JSON.parse(saved);
+                Object.assign(game, loaded);
+                if (game.adCooldown > 0) startAdCooldown();
+                if (!game.lastForcedAdTime) game.lastForcedAdTime = Date.now();
+            } catch (e) {
+                console.log('Erreur de chargement');
+            }
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
