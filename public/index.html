@@ -402,10 +402,12 @@
             filter: grayscale(0.5);
         }
 
-        .item-card.locked:hover {
-            transform: none;
-            box-shadow: none;
-        }
+.item-card.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+    pointer-events: none; /* <-- empêche tout clic sur les cartes bloquées */
+}
 
         .item-header {
             display: flex;
