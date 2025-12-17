@@ -1,6 +1,8 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9731060200926347"
+     crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍪 Cookie Clicker Ultimate</title>
@@ -1511,28 +1513,29 @@
             });
         });
 
-        function applyAdReward(reward) {
-            game.adsWatched++;
-            game.adBonuses++;
-            
-            if (reward === 'double') {
-                const oldMult = game.cpsMultiplier;
-                game.cpsMultiplier *= 2;
-                showNotification('⚡ Production x2 pendant 5 minutes !');
-                setTimeout(() => { game.cpsMultiplier = oldMult; }, 300000);
-            } else if (reward === 'cookies') {
-                const bonus = game.cookies * 1.5;
-                game.cookies += bonus;
-                game.totalCookies += bonus;
-                game.allTimeCookies += bonus;
-                showNotification('🍪 +' + formatNumber(bonus) + ' Cookies !');
-            } else if (reward === 'click') {
-                game.clickMultiplier = 5;
-                showNotification('👆 Puissance de clic x5 pendant 3 minutes !');
-                setTimeout(() => { game.clickMultiplier = 1; }, 180000);
-            }
-            updateDisplay();
-        }
+        function handleAdReward(reward) {
+    (adsbygoogle = window.adsbygoogle || []).push({}); 
+    game.adsWatched++;
+    game.adBonuses++;
+    
+    if (reward === 'double') {
+        const oldMult = game.cpsMultiplier;
+        game.cpsMultiplier *= 2;
+        showNotification('⚡ Production x2 pendant 5 minutes !');
+        setTimeout(() => { game.cpsMultiplier = oldMult; }, 300000);
+    } else if (reward === 'cookies') {
+        const bonus = game.cookies * 1.5;
+        game.cookies += bonus;
+        game.totalCookies += bonus;
+        game.allTimeCookies += bonus;
+        showNotification('🍪 +' + formatNumber(bonus) + ' Cookies !');
+    } else if (reward === 'click') {
+        game.clickMultiplier = 5;
+        showNotification('👆 Puissance de clic x5 pendant 3 minutes !');
+        setTimeout(() => { game.clickMultiplier = 1; }, 180000);
+    }
+    updateDisplay();
+}
 
         function startAdCooldown() {
             clearInterval(adTimer);
