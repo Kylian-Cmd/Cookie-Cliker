@@ -1613,14 +1613,23 @@
         document.getElementById('prestigeBtn').addEventListener('click', prestige);
 
         function checkAchievements() {
-              game.achievements.forEach(ach => {
-               if (!ach.unlocked && typeof ach.condition === 'function' && ach.condition()) {
-               ach.unlocked = true;
-               showNotification('🏆 Succès débloqué : ' + ach.name);
-               updateDisplay();
-             }
-              });
-               }
+    game.achievements.forEach(ach => {
+        if (!ach.unlocked && typeof ach.condition === 'function' && ach.condition()) {
+            ach.unlocked = true;
+            showNotification('🏆 Succès débloqué : ' + ach.name);
+            updateDisplay();
+        }
+    });
+}
+            //    function checkAchievements() {
+            //game.achievements.forEach(ach => {
+            //    if (!ach.unlocked && ach.condition()) {
+            //        ach.unlocked = true;
+            //       showNotification('🏆 Succès débloqué : ' + ach.name);
+            //        updateDisplay();
+            //    }
+            //});
+        //}
 
         function showNotification(text) {
             const notif = document.createElement('div');
@@ -1665,169 +1674,166 @@
             document.getElementById('homePerClick').textContent = formatNumber(game.clickPower * game.clickMultiplier * (1 + game.prestigeLevel * 0.1));
             document.getElementById('homePerSecond').textContent = formatNumber(game.cps);
             
-           // Alerte prestige disponible
-const prestigeGain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
-const navBtn = document.getElementById('prestigeNavBtn');
-navBtn.classList.toggle('prestige-available', prestigeGain > 0);
-
-// GENERATORS
-if (game.currentPage === 'generators') {
-    const genHTML = game.generators.map(gen => {
-        const cost = Math.floor(gen.baseCost * Math.pow(1.15, gen.count));
-        const canBuy = game.cookies >= cost;
-        const totalProduction = gen.production * gen.count * game.cpsMultiplier * (1 + game.prestigeLevel * 0.2);
-        return `
-            <div class="item-card ${!canBuy ? 'locked' : ''}" data-id="${gen.id}">
-                <div class="item-header">
-                    <div class="item-emoji">${gen.emoji}</div>
-                    <div class="item-count">${gen.count}</div>
-                </div>
-                <div class="item-name">${gen.name}</div>
-                <div class="item-desc">${gen.desc}</div>
-                <div class="item-stats">
-                    <div class="item-cost">💰 ${formatNumber(cost)}</div>
-                    <div class="item-production">📈 +${formatNumber(gen.production)}/s</div>
-                </div>
-                <div class="item-info">
-                    <div class="info-row">
-                        <span>Production totale:</span>
-                        <span style="color: #51cf66; font-weight: bold;">${formatNumber(totalProduction)}/s</span>
+            // Alerte prestige disponible
+            const prestigeGain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
+            const navBtn = document.getElementById('prestigeNavBtn');
+            if (prestigeGain > 0) {
+                navBtn.classList.add('prestige-available');
+            } else {
+                navBtn.classList.remove('prestige-available');
+            }
+            
+            if (game.currentPage === 'generators') {
+                const genHTML = game.generators.map(gen => {
+                    const cost = Math.floor(gen.baseCost * Math.pow(1.15, gen.count));
+                    const canBuy = game.cookies >= cost;
+                    const totalProduction = gen.production * gen.count * game.cpsMultiplier * (1 + game.prestigeLevel * 0.2);
+                    return `
+                        <div class="item-card ${!canBuy ? 'locked' : ''}" onclick="buyGenerator('${gen.id}')">
+                            <div class="item-header">
+                                <div class="item-emoji">${gen.emoji}</div>
+                                <div class="item-count">${gen.count}</div>
+                            </div>
+                            <div class="item-name">${gen.name}</div>
+                            <div class="item-desc">${gen.desc}</div>
+                            <div class="item-stats">
+                                <div class="item-cost">💰 ${formatNumber(cost)}</div>
+                                <div class="item-production">📈 +${formatNumber(gen.production)}/s</div>
+                            </div>
+                            <div class="item-info">
+                                <div class="info-row">
+                                    <span>Production totale:</span>
+                                    <span style="color: #51cf66; font-weight: bold;">${formatNumber(totalProduction)}/s</span>
+                                </div>
+                                <div class="info-row">
+                                    <span>Prochain coût:</span>
+                                    <span style="color: #ff6b6b;">${formatNumber(Math.floor(gen.baseCost * Math.pow(1.15, gen.count + 1)))}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('generatorsList').innerHTML = genHTML;
+            }
+            
+            if (game.currentPage === 'upgrades') {
+                const upgHTML = game.upgrades.map(upg => {
+                    const canBuy = !upg.purchased && game.cookies >= upg.cost;
+                    return `
+                        <div class="item-card ${upg.purchased ? 'locked' : !canBuy ? 'locked' : ''}" onclick="buyUpgrade('${upg.id}')">
+                            <div class="item-header">
+                                <div class="item-emoji">${upg.emoji}</div>
+                                <div style="color: ${upg.purchased ? '#4caf50' : '#ffd700'}; font-weight: bold; font-size: 16px;">
+                                    ${upg.purchased ? '✅ ACHETÉ' : ''}
+                                </div>
+                            </div>
+                            <div class="item-name">${upg.name}</div>
+                            <div class="item-desc">${upg.desc}</div>
+                            <div class="item-stats">
+                                <div class="item-cost">${upg.purchased ? '✨ Actif' : '💰 ' + formatNumber(upg.cost)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('upgradesList').innerHTML = upgHTML;
+            }
+            
+            if (game.currentPage === 'achievements') {
+                const achHTML = game.achievements.map(ach => `
+                    <div class="achievement-card ${ach.unlocked ? 'unlocked' : ''}">
+                        <div class="achievement-icon">${ach.unlocked ? '🏆' : '🔒'}</div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">${ach.name}</div>
+                            <div class="achievement-desc">${ach.desc}</div>
+                        </div>
                     </div>
-                    <div class="info-row">
-                        <span>Prochain coût:</span>
-                        <span style="color: #ff6b6b;">${formatNumber(Math.floor(gen.baseCost * Math.pow(1.15, gen.count + 1)))}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    const genList = document.getElementById('generatorsList');
-    genList.innerHTML = genHTML;
+                `).join('');
+                document.getElementById('achievementsList').innerHTML = achHTML;
+            }
+            
+            if (game.currentPage === 'prestige') {
+                const prestigeGain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
+                const progress = Math.min((game.totalCookies / 1000000) * 100, 100);
+                const canPrestige = game.totalCookies >= 1000000 && prestigeGain > 0;
+                
+                document.getElementById('currentPrestige').textContent = game.prestigeLevel;
+                document.getElementById('prestigeGainAmount').textContent = prestigeGain;
+                document.getElementById('prestigeProgressBar').style.width = progress + '%';
+                document.getElementById('prestigeProgressText').textContent = progress.toFixed(1) + '%';
+                document.getElementById('currentCookiesForPrestige').textContent = formatNumber(game.totalCookies);
+                document.getElementById('neededCookiesForPrestige').textContent = '1M';
+                
+                document.getElementById('clickBonus').textContent = game.prestigeLevel * 10;
+                document.getElementById('cpsBonus').textContent = game.prestigeLevel * 20;
+                
+                const req1 = document.getElementById('req1');
+                const req2 = document.getElementById('req2');
+                
+                if (game.totalCookies >= 1000000) {
+                    req1.classList.add('met');
+                    document.getElementById('req1Status').textContent = '✅';
+                } else {
+                    req1.classList.remove('met');
+                    document.getElementById('req1Status').textContent = '❌';
+                }
+                
+                if (prestigeGain > 0) {
+                    req2.classList.add('met');
+                    document.getElementById('req2Status').textContent = '✅';
+                } else {
+                    req2.classList.remove('met');
+                    document.getElementById('req2Status').textContent = '❌';
+                }
+                
+                const prestigeInfo = document.getElementById('prestigeInfo');
+                const prestigeBtn = document.getElementById('prestigeBtn');
+                
+                if (canPrestige) {
+                    prestigeInfo.classList.add('can-prestige');
+                    prestigeBtn.classList.add('ready');
+                    prestigeBtn.disabled = false;
+                } else {
+                    prestigeInfo.classList.remove('can-prestige');
+                    prestigeBtn.classList.remove('ready');
+                    prestigeBtn.disabled = true;
+                }
+                
+                ['1', '5', '10', '25'].forEach(level => {
+                    const milestone = document.getElementById('milestone' + level);
+                    if (game.prestigeLevel >= parseInt(level)) {
+                        milestone.classList.add('unlocked');
+                    } else {
+                        milestone.classList.remove('unlocked');
+                    }
+                });
+            }
+            
+            if (game.currentPage === 'stats') {
+                document.getElementById('statCookies').textContent = formatNumber(game.cookies);
+                document.getElementById('statTotalCookies').textContent = formatNumber(game.totalCookies);
+                document.getElementById('statAllTimeCookies').textContent = formatNumber(game.allTimeCookies);
+                document.getElementById('statCPS').textContent = formatNumber(game.cps);
+                document.getElementById('statClickPower').textContent = formatNumber(game.clickPower * game.clickMultiplier * (1 + game.prestigeLevel * 0.1));
+                document.getElementById('statClicks').textContent = game.clicks;
+                document.getElementById('statMaxCombo').textContent = game.maxCombo;
+                document.getElementById('statCritClicks').textContent = game.critClicks;
+                document.getElementById('statGoldenClicks').textContent = game.goldenClicks;
+                document.getElementById('statTotalGens').textContent = game.generators.reduce((a, b) => a + b.count, 0);
+                
+                const mostGen = game.generators.reduce((max, gen) => gen.count > max.count ? gen : max, game.generators[0]);
+                document.getElementById('statMostGen').textContent = mostGen.count > 0 ? `${mostGen.name} (${mostGen.count})` : 'Aucun';
+                
+                document.getElementById('statPrestigeLevel').textContent = game.prestigeLevel;
+                document.getElementById('statPrestigeCount').textContent = game.prestigeCount;
+                document.getElementById('statUpgrades').textContent = game.upgrades.filter(u => u.purchased).length + '/' + game.upgrades.length;
+                document.getElementById('statAchievements').textContent = game.achievements.filter(a => a.unlocked).length + '/' + game.achievements.length;
+                document.getElementById('statAdsWatched').textContent = game.adsWatched;
+                document.getElementById('statForcedAds').textContent = game.forcedAdsWatched;
+                document.getElementById('statAdBonuses').textContent = game.adBonuses;
+            }
 
-    // Click + hover animation
-    genList.querySelectorAll('.item-card').forEach(card => {
-        const id = card.dataset.id;
-
-        // Click pour acheter
-        card.addEventListener('click', () => buyGenerator(id));
-
-        // Hover effet bond
-        card.addEventListener('mouseenter', () => {
-            if (card.classList.contains('bouncing')) return;
-            card.classList.add('bouncing');
-            card.addEventListener('animationend', function handler() {
-                card.classList.remove('bouncing');
-                card.removeEventListener('animationend', handler);
-            });
-        });
-    });
-}
-
-// UPGRADES
-if (game.currentPage === 'upgrades') {
-    const upgHTML = game.upgrades.map(upg => {
-        const canBuy = !upg.purchased && game.cookies >= upg.cost;
-        return `
-            <div class="item-card ${upg.purchased ? 'locked' : !canBuy ? 'locked' : ''}" data-id="${upg.id}">
-                <div class="item-header">
-                    <div class="item-emoji">${upg.emoji}</div>
-                    <div style="color: ${upg.purchased ? '#4caf50' : '#ffd700'}; font-weight: bold; font-size: 16px;">
-                        ${upg.purchased ? '✅ ACHETÉ' : ''}
-                    </div>
-                </div>
-                <div class="item-name">${upg.name}</div>
-                <div class="item-desc">${upg.desc}</div>
-                <div class="item-stats">
-                    <div class="item-cost">${upg.purchased ? '✨ Actif' : '💰 ' + formatNumber(upg.cost)}</div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    const upgList = document.getElementById('upgradesList');
-    upgList.innerHTML = upgHTML;
-
-    // Click pour acheter
-    upgList.querySelectorAll('.item-card').forEach(card => {
-        const id = card.dataset.id;
-        card.addEventListener('click', () => buyUpgrade(id));
-    });
-}
-
-// ACHIEVEMENTS
-if (game.currentPage === 'achievements') {
-    const achHTML = game.achievements.map(ach => `
-        <div class="achievement-card ${ach.unlocked ? 'unlocked' : ''}">
-            <div class="achievement-icon">${ach.unlocked ? '🏆' : '🔒'}</div>
-            <div class="achievement-info">
-                <div class="achievement-name">${ach.name}</div>
-                <div class="achievement-desc">${ach.desc}</div>
-            </div>
-        </div>
-    `).join('');
-    document.getElementById('achievementsList').innerHTML = achHTML;
-}
-
-// PRESTIGE
-if (game.currentPage === 'prestige') {
-    const prestigeGain = Math.floor(Math.sqrt(game.totalCookies / 1000000));
-    const progress = Math.min((game.totalCookies / 1000000) * 100, 100);
-    const canPrestige = game.totalCookies >= 1000000 && prestigeGain > 0;
-
-    document.getElementById('currentPrestige').textContent = game.prestigeLevel;
-    document.getElementById('prestigeGainAmount').textContent = prestigeGain;
-    document.getElementById('prestigeProgressBar').style.width = progress + '%';
-    document.getElementById('prestigeProgressText').textContent = progress.toFixed(1) + '%';
-    document.getElementById('currentCookiesForPrestige').textContent = formatNumber(game.totalCookies);
-    document.getElementById('neededCookiesForPrestige').textContent = '1M';
-    document.getElementById('clickBonus').textContent = game.prestigeLevel * 10;
-    document.getElementById('cpsBonus').textContent = game.prestigeLevel * 20;
-
-    const req1 = document.getElementById('req1');
-    const req2 = document.getElementById('req2');
-    req1.classList.toggle('met', game.totalCookies >= 1000000);
-    document.getElementById('req1Status').textContent = game.totalCookies >= 1000000 ? '✅' : '❌';
-    req2.classList.toggle('met', prestigeGain > 0);
-    document.getElementById('req2Status').textContent = prestigeGain > 0 ? '✅' : '❌';
-
-    const prestigeInfo = document.getElementById('prestigeInfo');
-    const prestigeBtn = document.getElementById('prestigeBtn');
-    prestigeInfo.classList.toggle('can-prestige', canPrestige);
-    prestigeBtn.classList.toggle('ready', canPrestige);
-    prestigeBtn.disabled = !canPrestige;
-
-    ['1', '5', '10', '25'].forEach(level => {
-        const milestone = document.getElementById('milestone' + level);
-        milestone.classList.toggle('unlocked', game.prestigeLevel >= parseInt(level));
-    });
-}
-
-// STATS
-if (game.currentPage === 'stats') {
-    document.getElementById('statCookies').textContent = formatNumber(game.cookies);
-    document.getElementById('statTotalCookies').textContent = formatNumber(game.totalCookies);
-    document.getElementById('statAllTimeCookies').textContent = formatNumber(game.allTimeCookies);
-    document.getElementById('statCPS').textContent = formatNumber(game.cps);
-    document.getElementById('statClickPower').textContent = formatNumber(game.clickPower * game.clickMultiplier * (1 + game.prestigeLevel * 0.1));
-    document.getElementById('statClicks').textContent = game.clicks;
-    document.getElementById('statMaxCombo').textContent = game.maxCombo;
-    document.getElementById('statCritClicks').textContent = game.critClicks;
-    document.getElementById('statGoldenClicks').textContent = game.goldenClicks;
-    document.getElementById('statTotalGens').textContent = game.generators.reduce((a, b) => a + b.count, 0);
-
-    const mostGen = game.generators.reduce((max, gen) => gen.count > max.count ? gen : max, game.generators[0]);
-    document.getElementById('statMostGen').textContent = mostGen.count > 0 ? `${mostGen.name} (${mostGen.count})` : 'Aucun';
-
-    document.getElementById('statPrestigeLevel').textContent = game.prestigeLevel;
-    document.getElementById('statPrestigeCount').textContent = game.prestigeCount;
-    document.getElementById('statUpgrades').textContent = game.upgrades.filter(u => u.purchased).length + '/' + game.upgrades.length;
-    document.getElementById('statAchievements').textContent = game.achievements.filter(a => a.unlocked).length + '/' + game.achievements.length;
-    document.getElementById('statAdsWatched').textContent = game.adsWatched;
-    document.getElementById('statForcedAds').textContent = game.forcedAdsWatched;
-    document.getElementById('statAdBonuses').textContent = game.adBonuses;
-}
-
-document.getElementById('adCooldownDisplay').textContent = game.adCooldown;
-
+            document.getElementById('adCooldownDisplay').textContent = game.adCooldown;
+        }
 
         setInterval(() => {
             localStorage.setItem('cookieGameUltimate', JSON.stringify(game));
