@@ -1506,7 +1506,7 @@
         document.querySelectorAll('[data-reward]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const reward = e.target.getAttribute('data-reward') || e.target.closest('[data-reward]').getAttribute('data-reward');
-                applyAdReward(reward);
+                handleAdReward(reward);
                 document.getElementById('adModal').classList.remove('active');
                 game.adCooldown = 120;
                 startAdCooldown();
