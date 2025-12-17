@@ -379,19 +379,17 @@
 
 .item-card {
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(15px);
+    /* backdrop-filter: blur(15px);  <-- supprime ça */
     padding: 25px;
     border-radius: 20px;
     border: 2px solid rgba(255, 215, 0, 0.3);
     cursor: pointer;
-    transition:
-    transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    box-shadow 0.4s ease,
-    border-color 0.3s ease;
-
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.4s ease,
+                border-color 0.3s ease;
     position: relative;
     overflow: hidden;
-    transform: translateZ(0); /* <-- force GPU rendering */
+    transform: translateZ(0);
 }
 
 .item-card:hover {
