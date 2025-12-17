@@ -390,11 +390,12 @@
     transform: translateZ(0); /* <-- force GPU rendering */
 }
 
-        .item-card:hover {
-            transform: translateY(-8px) scale(1.03);
-            border-color: #ffd700;
-            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.5);
-        }
+.item-card:hover {
+    transform: scale(1.03);
+    border-color: #ffd700;
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.5);
+}
+
 
         .item-card.locked {
             opacity: 0.6;
